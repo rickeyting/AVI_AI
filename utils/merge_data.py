@@ -30,4 +30,4 @@ def fqc_date(fqc_path):
         df = df.dropna(subset=['Part No.'])
 
 if __name__ == '__main__':
-    #daily_record(AI_DIR)
+    #fqc_date(AI_DIR)
