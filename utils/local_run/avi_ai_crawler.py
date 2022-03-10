@@ -29,6 +29,7 @@ if os.path.exists(r'\\192.168.0.111\DataFiles(Edit)'):
 if ip_address == '192.168.0.111':
     past_data_dir = r'\\{}\ScanImages\ai_all.csv'.format(ip_address)
 
+past_data_dir = r'D:\Project\AVI_AI\data\AI\ai_all.csv'
 if os.path.exists(past_data_dir):
     ai_edit_dir = r'\\{}\DataFiles(Edit)\visper-1'.format(ip_address)
     ai_df = pd.read_csv(past_data_dir)
@@ -37,7 +38,7 @@ if os.path.exists(past_data_dir):
         ai_edit_dir = r'\\{}\ScanImagesBK\DataFiles_Edit\visper-1'.format(ip_address)
 else:
     ai_edit_dir = r'\\{}\ScanImagesBK\DataFiles_Edit\visper-1'.format(ip_address)
-    ai_df = pd.DataFrame(columns=['AVI','part','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
+    ai_df = pd.DataFrame(columns=['AVI','part','Date_code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
 
 print('Date from ' + ai_edit_dir)
 
@@ -47,7 +48,7 @@ def check_unprocessed_date(check_dir,ai_df=ai_df):
     last_date = '20210101'
     if len(ai_df) != 0:
         last_date = ai_df.iloc[-1]['AVI']
-        last_date = (datetime.strptime(str(last_date), '%Y%m%d')-timedelta(days=7)).strftime('%Y%m%d')
+        last_date = (datetime.strptime(str(last_date), '%Y%m%d')-timedelta(days=1)).strftime('%Y%m%d')
     print('UPDATE FROM ' +last_date)
     unprocessed_list = [i for i in present_list if (len(i)==8)&(i>=last_date)]
     #print('STATUS:getting unprocessed date Done')
@@ -58,7 +59,7 @@ def check_unprocessed_lot(undo_date):
     if os.path.exists(past_data_dir):
         ai_df = pd.read_csv(past_data_dir)
     else:
-        ai_df = pd.DataFrame(columns=['AVI','part','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
+        ai_df = pd.DataFrame(columns=['AVI','part','Date_code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
     present_part_list = os.listdir(os.path.join(ai_edit_dir,undo_date))
     for a in present_part_list:
         lot_path = os.path.join(ai_edit_dir,undo_date,a)
@@ -103,6 +104,7 @@ def get_lot_info(lot_path,ai_df):
             VRS = datetime.fromtimestamp(np.median(vrs_time)).strftime("%Y-%m-%d") 
             strips = len(vrs_time)
             try:
+                Date_code = concat_df['Step_Code'].max()
                 OK_m = len(concat_df[concat_df.AI_Flag.astype(str) == 'OK'])
                 NG_m = len(concat_df[concat_df.AI_Flag.astype(str) != 'OK'])
                 if OK_m == 0:
@@ -114,6 +116,7 @@ def get_lot_info(lot_path,ai_df):
                 ALL_m = OK_m + NG_m
                 filter_rate = round(OK_m/ALL_m,2) 
             except:
+                Date_code = np.nan
                 OK_m = np.nan
                 NG_m = np.nan
                 ALL_m = np.nan
@@ -149,9 +152,9 @@ def get_lot_info(lot_path,ai_df):
                 model = np.nan
                 Type = np.nan
                 
-            concat_list.append([AVI,part,VRS,Part_No,tape_lot,vrs_id,strips,CheckTime,OK_m,NG_m,ALL_m,filter_rate,visper,AI,size,Type,model])
+            concat_list.append([AVI,part,Date_code,VRS,Part_No,tape_lot,vrs_id,strips,CheckTime,OK_m,NG_m,ALL_m,filter_rate,visper,AI,size,Type,model])
     if len(concat_list) > 0:
-        add_df = pd.DataFrame(np.array(concat_list),columns=['AVI','part','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
+        add_df = pd.DataFrame(np.array(concat_list),columns=['AVI','part','Date_Code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
         add_df = add_df[(add_df.visper.astype(str) == 'V1')|(add_df.visper.astype(str) == 'V2')|(add_df.visper.astype(str) == 'V3')|(add_df.visper.astype(str) == 'V4')|(add_df.visper.astype(str) == 'V5')|(add_df.visper.astype(str) == 'V6')]
         ai_df = pd.concat([ai_df,add_df],sort=False)
         ai_df.AVI = ai_df.AVI.astype(int)
@@ -170,6 +173,7 @@ def update_ai_data(check_dir):
 if __name__ == '__main__':
     while True:
         try:
+            ai_data_dir = r'\\10.19.13.40\DataFiles(Edit)\visper-1'
             update_ai_data(ai_data_dir)
         except Exception as e:
             print(e)
