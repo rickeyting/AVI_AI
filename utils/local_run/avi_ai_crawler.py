@@ -29,7 +29,6 @@ if os.path.exists(r'\\192.168.0.111\DataFiles(Edit)'):
 if ip_address == '192.168.0.111':
     past_data_dir = r'\\{}\ScanImages\ai_all.csv'.format(ip_address)
 
-past_data_dir = r'D:\Project\AVI_AI\data\AI\ai_all.csv'
 if os.path.exists(past_data_dir):
     ai_edit_dir = r'\\{}\DataFiles(Edit)\visper-1'.format(ip_address)
     ai_df = pd.read_csv(past_data_dir)
@@ -173,7 +172,6 @@ def update_ai_data(check_dir):
 if __name__ == '__main__':
     while True:
         try:
-            ai_data_dir = r'\\10.19.13.40\DataFiles(Edit)\visper-1'
             update_ai_data(ai_data_dir)
         except Exception as e:
             print(e)
