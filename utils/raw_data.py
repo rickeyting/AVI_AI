@@ -31,3 +31,4 @@ def get_raw_data(ai_data_dir):
     
 if __name__ == '__main__':
     #get_raw_data(AI_DIR)
+    pass

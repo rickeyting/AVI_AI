@@ -37,7 +37,7 @@ if os.path.exists(past_data_dir):
         ai_edit_dir = r'\\{}\ScanImagesBK\DataFiles_Edit\visper-1'.format(ip_address)
 else:
     ai_edit_dir = r'\\{}\ScanImagesBK\DataFiles_Edit\visper-1'.format(ip_address)
-    ai_df = pd.DataFrame(columns=['AVI','part','Date_code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
+    ai_df = pd.DataFrame(columns=['AVI','part','Date_Code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
 
 print('Date from ' + ai_edit_dir)
 
@@ -58,7 +58,7 @@ def check_unprocessed_lot(undo_date):
     if os.path.exists(past_data_dir):
         ai_df = pd.read_csv(past_data_dir)
     else:
-        ai_df = pd.DataFrame(columns=['AVI','part','Date_code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
+        ai_df = pd.DataFrame(columns=['AVI','part','Date_Code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
     present_part_list = os.listdir(os.path.join(ai_edit_dir,undo_date))
     for a in present_part_list:
         lot_path = os.path.join(ai_edit_dir,undo_date,a)
