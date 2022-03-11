@@ -5,12 +5,14 @@ Created on Tue Mar  8 14:20:54 2022
 @author: A2433
 """
 import os
-from utils import avi_foqc_crawler, raw_data
+import pandas as pd
+from utils import avi_foqc_crawler, raw_data, merge_data
 
 root_dir = os.path.abspath('.')
 data_dir = os.path.join(root_dir,'data')
 output_dir = os.path.join(root_dir,'output')
 ai_dir = os.path.join(data_dir,'AI')
+ai_table = os.path.join(ai_dir,'ai_all.csv')
 fqc_dir = os.path.join(data_dir,'FQC')
 oqc_dir = os.path.join(data_dir,'OQC')
 exe_dir = os.path.join(root_dir,'msedgedriver.exe')
@@ -32,3 +34,17 @@ if __name__ == '__main__':
     #pre_procss()
     #avi_foqc_crawler.do_crawl(exe_dir,fqc_dir,oqc_dir)
     raw_data.get_raw_data(ai_dir)
+    daily_df = merge_data.daily_record(ai_table)
+    ai_df = pd.read_csv(ai_table)
+    anova_df = merge_data.all_concat(ai_table,fqc_dir,oqc_dir)
+    week_df = merge_data.weekly_report(anova_df)
+    output_dic = {}
+    
+    output_dic['week'] = week_df
+    output_dic['anova'] = anova_df
+    output_dic['daily'] = daily_df
+    output_dic['AI'] = ai_df
+    
+    
+    merge_data.output_exl(output_dic,output_dir)
+    
