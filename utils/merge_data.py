@@ -78,8 +78,9 @@ def oqc_data(oqc_path):
 def ai_data(ai_path):
     print('STATUS: arrange ai data')
     df = pd.read_csv(ai_path)
-    df = df[['AVI','VRS','Part_No','lot','strips','CheckTime(min)','OK','NG','ALL','type','size','AI','Date_Code']]
+    df = df[['AVI','VRS','Part_No','lot','strips','CheckTime(min)','OK','NG','ALL','type','size','AI','Date_Code','model']]
     df['Part_No'] = df.Part_No.str[:9]
+    df.loc[(df['model'] != 'R1') & (df['model'] != 'Z1') & (df.AI != 'Unactivated') & (df.AI != 'unfiltered'),'AI'] = 'OFF'
     df.lot = pd.to_numeric(df.lot, errors='coerce')
     df = df[df.AI == 'ON']
     df = df.drop('AI',axis = 1).reset_index()
