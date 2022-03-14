@@ -17,6 +17,7 @@ fqc_dir = os.path.join(data_dir,'FQC')
 oqc_dir = os.path.join(data_dir,'OQC')
 exe_dir = os.path.join(root_dir,'msedgedriver.exe')
 
+
 def pre_procss():
     print('STATUS: creating dirs')
     if not os.path.exists(data_dir):
@@ -37,10 +38,11 @@ if __name__ == '__main__':
     daily_df = merge_data.daily_record(ai_table)
     ai_df = pd.read_csv(ai_table)
     anova_df = merge_data.all_concat(ai_table,fqc_dir,oqc_dir)
-    week_df = merge_data.weekly_report(anova_df)
+    week_df_mp = merge_data.weekly_report(anova_df)
+    week_df_sample = merge_data.weekly_report(anova_df,'SAMPLE')
     output_dic = {}
-    
-    output_dic['week'] = week_df
+    output_dic['week_mp'] = week_df_mp
+    output_dic['week_sample'] = week_df_sample
     output_dic['anova'] = anova_df
     output_dic['daily'] = daily_df
     output_dic['AI'] = ai_df

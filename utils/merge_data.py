@@ -9,7 +9,7 @@ import pandas as pd
 import os
 from tqdm import tqdm
 import numpy as np
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 
 BASE_DIR = os.path.abspath(os.path.join('..','data'))
 TEST_SAVE = os.path.join(BASE_DIR,'test.csv')
@@ -70,6 +70,7 @@ def oqc_data(oqc_path):
     result.Date_Code = pd.to_numeric(result.Date_Code, errors='coerce')
     result.loc[result.reject_times != '退回','reject_times'] = 0
     result.loc[result.reject_times == '退回','reject_times'] = 1
+    result = result[result.OQC_AVI == 1]
     result_group = result.groupby(['Part_No','Date_Code','lot']).agg({'OQC_date':'last','check_times':'count','reject_times':'sum','OQC_AVI':'max','OQC_Strips':'sum'}).reset_index()
     return result_group
 
@@ -83,76 +84,64 @@ def ai_data(ai_path):
     df = df[df.AI == 'ON']
     df = df.drop('AI',axis = 1).reset_index()
     df.Date_Code = df.Date_Code.str[3:7]
+    df.Date_Code = df.Date_Code.fillna(0)
     df.Date_Code = pd.to_numeric(df.Date_Code, errors='coerce')
-    result_group = df.groupby(['Part_No','Date_Code','lot','size']).agg({'AVI':'first','VRS':'last','strips':'sum','CheckTime(min)':'sum','OK':'sum','NG':'sum','ALL':'sum','type':'last'}).reset_index()
-    #result_group['repeat_check'] = result_group.index
+    result_group = df.groupby(['Part_No','Date_Code','lot']).agg({'AVI':'first','VRS':'last','strips':'sum','CheckTime(min)':'sum','OK':'sum','NG':'sum','ALL':'sum','type':'last','size':'last'}).reset_index()
     result_group['AVI'] = pd.to_datetime(result_group['AVI'], format='%Y%m%d')
-    '''
-    df = df.groupby(['Part_No','lot','size']).resample('14D', on='AVI').agg({'VRS':'last','strips':'sum','CheckTime(min)':'sum','OK':'sum','NG':'sum','ALL':'sum','type':'last'}).reset_index()
-    
-    df = df.dropna()
-    result = []
-    for i in range(5):
-        df_t = df.copy()
-        df_t['Date_Code'] = (df_t['AVI'] - timedelta(days=7*abs(i))).dt.strftime('%U%y')
-        result.append(df_t)
-    result = pd.concat(result)
-    result.lot = pd.to_numeric(result.lot, errors='coerce')
-    result.Date_Code = pd.to_numeric(result.Date_Code, errors='coerce')
-    '''
     return result_group
     
+
 def all_concat(ai_path,fqc_path,oqc_path):
     ai_df = ai_data(ai_path)
     fqc_df = fqc_data(fqc_path)
     oqc_df = oqc_data(oqc_path)
-    con_df = ai_df.merge(fqc_df.merge(oqc_df,on=['Part_No','lot','Date_Code'],how='left'),on=['Part_No','lot','Date_Code'],how='left')
+    con_df = ai_df.merge(fqc_df.merge(oqc_df,on=['Part_No','lot','Date_Code'],how='left'),on=['Part_No','lot','Date_Code'],how='left').sort_values(by='VRS')
     print('STATUS: repeated occurrences happened when merge -- {}'.format(any(con_df[con_df.f_repeat.notna()].f_repeat.duplicated())))
     con_df.drop(['f_repeat','type'],axis=1)
-    '''
-    result = []
-    for i in range(con_df.repeat_check.max()+1):
-        row = con_df[con_df.repeat_check == i]
-        row = row.sort_values(by=['OQC_date','FQC_date','VRS'],ascending=False)
-        row = row.head(1)
-        result.append(row)
-    result = pd.concat(result)
-    '''
     return con_df
     
-    '''
-    fqc_origin = fqc_origin[fqc_origin.FQC_date > datetime.strptime('2022-01-01', '%Y-%m-%d')]
-    oqc_origin = oqc_origin[oqc_origin['檢驗日期'] > datetime.strptime('2022-01-01', '%Y-%m-%d')]
-    output_dir = os.path.join(OUTPUT_DATA,'AI測試報表_{}.xls'.format(datetime.today().strftime('%m%d')))
-    with pd.ExcelWriter(output_dir) as writer:
-        anova_week.to_excel(writer, sheet_name='ANOVA_WEEK',index=False)
-        anova.to_excel(writer, sheet_name='ANOVA',index=False)
-        df_mail.to_excel(writer, sheet_name='DAILY')
-        df_mass_5.to_excel(writer, sheet_name='5um')
-        df_mass_10.to_excel(writer, sheet_name='10+18um')
-        df_sample.to_excel(writer, sheet_name='sample')
-        df.to_excel(writer, sheet_name='AI',index=False)
-        fqc_origin.to_excel(writer, sheet_name='FQC',index=False)
-        oqc_origin.to_excel(writer, sheet_name='OQC',index=False)
-    '''
-def weekly_report(anova_df):
+
+def weekly_report(anova_df,status = 'MP'):
     df = anova_df
-    df['VRS'] = pd.to_datetime(df['VRS'])
-    df = df.groupby('size').resample('W-Sun', on='VRS').sum().reset_index().sort_values(by='VRS')
+    if status == 'MP':
+        df = df[df['size'] != '5UM']
+    else:
+        df = df[df['size'] == '5UM']
+    df.loc[:,'VRS'] = pd.to_datetime(df.loc[:,'VRS'])
     df_m = df.resample('M',on='VRS').sum().reset_index()
-    df_w = df.resample('W',on='VRS').sum().reset_index()
+    df_m.VRS = df_m.VRS.dt.month.astype(str) + '月總計'
+    #df_w = df.resample('W',on='VRS').sum().reset_index()
+    #df_w.VRS = 'W' + df_w.VRS.dt.week+1
     df_s = df.groupby('size').resample('W',on='VRS').sum().reset_index()
-    result = pd.concat[df_m,df_w,df_s]
-    result['Pics/strip'] = round(result['check_all']/result['strips'],0)
+    df_s.VRS = df_s.VRS.astype(str) + 'W' + (df_s.VRS.dt.week+1).astype(str).str.rjust(2, "0")
+    df_s = df_s.sort_values(by=['VRS','size'])
+    df_s.VRS = df_s.VRS.str[10:]
+    result = pd.concat([df_m,df_s],sort=False)
+    result['Pics/strip'] = round(result['ALL']/result['strips'],0)
     result['Filer rate'] = round(result['OK']/result['ALL']*100,1).astype(str) + '%'
     result['UPH'] = round(result['strips']/result['CheckTime(min)']*60,0)
-    result['Yield'] =  round(result['OK']/result['Total_Strips']*100,1).astype(str) + '%'
-    result['Reject rate'] = round(result['OQC_rejection']/result['OQC_strips']*100,1).astype(str) + '%'
-    first_row = pd.DataFrame(np.array([['non-AI base',90,'6.2%']]),columns = ['Week','UPH','Reject rate'])
-    result = pd.concat([first_row,result])
-    result = result[['VRS','strips','Pics/strip','Filer rate','UPH','Reject rate']]
+    result['Yield'] =  round(result['OK_Strips']/result['FQC_Strips']*100,1).astype(str) + '%'
+    result['Reject rate'] = round(result['reject_times']/result['check_times']*100,1).astype(str) + '%'
+    first_row = pd.DataFrame(np.array([['non-AI base',90,'6.2%']]),columns = ['VRS','UPH','Reject rate'])
+    result = pd.concat([first_row,result],sort=False)
+    result = result[['VRS','size','strips','Pics/strip','Filer rate','UPH','Reject rate']]
+    result.columns = ['VRS','','strips','Pics/strip','Filer rate','UPH','Reject rate']
     return result
+
     
+def format_color_groups(df):
+    colors = ['gold', 'lightblue']
+    x = df.copy()
+    x['strips'] = x['strips'].astype(str)
+    factors = list(x['strips'].unique())
+    i = 0
+    for factor in factors:
+        style = f'background-color: {colors[i]}'
+        x.loc[x['strips'] == factor, :] = style
+        i = not i
+    return x
+
+
 def output_exl(sheets,output_path):
     output_dir = os.path.join(output_path,'AI測試報表_{}.xls'.format(datetime.today().strftime('%Y%m%d')))
     with pd.ExcelWriter(output_dir) as writer:
