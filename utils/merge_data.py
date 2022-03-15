@@ -4,7 +4,6 @@ Created on Tue Mar  8 14:45:31 2022
 
 @author: A2433
 """
-
 import pandas as pd
 import os
 from tqdm import tqdm
@@ -129,7 +128,7 @@ def weekly_report(anova_df,status = 'MP'):
     result.columns = ['VRS','','strips','Pics/strip','Filer rate','UPH','Reject rate']
     return result
 
-    
+'''    
 def format_color_groups(df):
     colors = ['gold', 'lightblue']
     x = df.copy()
@@ -141,7 +140,7 @@ def format_color_groups(df):
         x.loc[x['strips'] == factor, :] = style
         i = not i
     return x
-
+'''
 
 def output_exl(sheets,output_path):
     output_dir = os.path.join(output_path,'AI測試報表_{}.xls'.format(datetime.today().strftime('%Y%m%d')))
@@ -151,6 +150,6 @@ def output_exl(sheets,output_path):
 
     
 if __name__ == '__main__':
-    all_concat(AI_DIR,FQC_DIR,OQC_DIR)
+    #all_concat(AI_DIR,FQC_DIR,OQC_DIR)
     #ai_data(AI_DIR).to_csv(TEST_SAVE)
-    
+    pass

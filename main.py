@@ -31,9 +31,10 @@ def pre_procss():
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
+
 if __name__ == '__main__':
-    #pre_procss()
-    #avi_foqc_crawler.do_crawl(exe_dir,fqc_dir,oqc_dir)
+    pre_procss()
+    avi_foqc_crawler.do_crawl(exe_dir,fqc_dir,oqc_dir)
     raw_data.get_raw_data(ai_dir)
     daily_df = merge_data.daily_record(ai_table)
     ai_df = pd.read_csv(ai_table)
@@ -46,7 +47,5 @@ if __name__ == '__main__':
     output_dic['anova'] = anova_df
     output_dic['daily'] = daily_df
     output_dic['AI'] = ai_df
-    
-    
     merge_data.output_exl(output_dic,output_dir)
     
