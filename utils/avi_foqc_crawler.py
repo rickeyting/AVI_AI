@@ -104,7 +104,7 @@ def do_crawl(exe_path,fqc_path,oqc_path):
                     url = 'http://10.13.65.74:1014/'
                     driver.get(url)
                     driver.find_element_by_id('BTNSY').click()
-                    driver.set_page_load_timeout(600)
+                    driver.set_page_load_timeout(1200)
                     check_status += oqc_crawl(driver,start.strftime('%Y/%m/%d'),end,oqc_path)
                     check_status += fqc_crawl(driver,start.strftime('%Y/%m/%d'),end,fqc_path)
                 except Exception as e:
