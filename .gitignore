@@ -9,8 +9,10 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+data/
 develop-eggs/
 dist/
+output/
 downloads/
 eggs/
 .eggs/
@@ -54,6 +56,7 @@ cover/
 # Translations
 *.mo
 *.pot
+*.csv
 
 # Django stuff:
 *.log
