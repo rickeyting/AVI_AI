@@ -56,7 +56,7 @@ def check_unprocessed_lot(undo_date):
     if os.path.exists(past_data_dir):
         ai_df = pd.read_csv(past_data_dir)
     else:
-        ai_df = pd.DataFrame(columns=['AVI','part','Date_Code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model','OPID'])
+        ai_df = pd.DataFrame(columns=['AVI','part','Date_Code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model','OPID','VRSmachine'])
     present_part_list = os.listdir(os.path.join(ai_edit_dir,undo_date))
     for a in present_part_list:
         lot_path = os.path.join(ai_edit_dir,undo_date,a)
@@ -85,19 +85,22 @@ def get_lot_info(lot_path,ai_df):
             except:
                 print('ReConneting')
         opid = ''
+        machine = ''
         for panel in panel_dir:
             try:
                 vrs_time.append(os.path.getctime(os.path.join(lot_path,lot,panel,'VRS.OK')))
                 if os.path.exists(os.path.join(lot_path,lot,panel,'VRS.csv')):
                     ai_status = 'unfiltered'
                 pre_df = pd.read_csv(os.path.join(lot_path,lot,panel,'AI.csv'),header=9)
+                if len(str(machine)) < 1:
+                    machine = str(pre_df.at[0,'VRSmachine'])
                 if len(opid) < 4:
                     id_df = pd.read_csv(os.path.join(lot_path,lot,panel,'AI.csv'), nrows=8, header = None, index_col=0)
                     current_id = id_df.at['OPID',1]
-                    if len(current_id) >= 4:
-                        opid = current_id
+                    if len(str(current_id)) >= 4:
+                        opid = str(current_id)
                 concat_df = pd.concat([concat_df,pre_df])
-            except:
+            except Exception as e:
                 pass
         ##ARRANGE AI INFO  
         if len(vrs_time) > 0:
@@ -119,7 +122,7 @@ def get_lot_info(lot_path,ai_df):
                     AI = 'ON'
                 ALL_m = OK_m + NG_m
                 filter_rate = round(OK_m/ALL_m,2) 
-            except:
+            except Exception as e:
                 OK_m = np.nan
                 NG_m = np.nan
                 ALL_m = np.nan
@@ -156,9 +159,9 @@ def get_lot_info(lot_path,ai_df):
                 Type = np.nan
             if ai_status == 'unfiltered':
                 AI = 'unfiltered'
-            concat_list.append([AVI,part,Date_code,VRS,Part_No,tape_lot,vrs_id,strips,CheckTime,OK_m,NG_m,ALL_m,filter_rate,visper,AI,size,Type,model,opid])
+            concat_list.append([AVI,part,Date_code,VRS,Part_No,tape_lot,vrs_id,strips,CheckTime,OK_m,NG_m,ALL_m,filter_rate,visper,AI,size,Type,model,opid,machine])
     if len(concat_list) > 0:
-        add_df = pd.DataFrame(np.array(concat_list),columns=['AVI','part','Date_Code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model','OPID'])
+        add_df = pd.DataFrame(np.array(concat_list),columns=['AVI','part','Date_Code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model','OPID','VRSmachine'])
         add_df = add_df[(add_df.visper.astype(str) == 'V1')|(add_df.visper.astype(str) == 'V2')|(add_df.visper.astype(str) == 'V3')|(add_df.visper.astype(str) == 'V4')|(add_df.visper.astype(str) == 'V5')|(add_df.visper.astype(str) == 'V6')]
         ai_df = pd.concat([ai_df,add_df],sort=False)
         ai_df.AVI = ai_df.AVI.astype(int)
