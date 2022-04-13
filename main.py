@@ -34,7 +34,7 @@ def pre_procss():
 
 if __name__ == '__main__':
     pre_procss()
-    #avi_foqc_crawler.do_crawl(exe_dir,fqc_dir,oqc_dir)
+    avi_foqc_crawler.do_crawl(exe_dir,fqc_dir,oqc_dir)
     raw_data.get_raw_data(ai_dir)
     daily_df = merge_data.daily_record(ai_table)
     ai_df = pd.read_csv(ai_table)

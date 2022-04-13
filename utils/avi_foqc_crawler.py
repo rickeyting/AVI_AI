@@ -24,7 +24,7 @@ EXE_PATH = os.path.abspath(os.path.join('..','msedgedriver.exe'))
 options = EdgeOptions()
 options.use_chromium = True
 #options.add_argument("headless")
-options.add_argument("disable-gpu")
+#options.add_argument("disable-gpu")
 #options.add_argument("javascript.enabled", True)
 
 def fqc_crawl(driver,start_date,end_date,fqc_path):
@@ -73,7 +73,7 @@ def get_start_date(fqc_path,oqc_path):
     else:
         fqc_start = os.listdir(fqc_path)[-2][:10]
         last_week = os.path.join(fqc_path,os.listdir(fqc_path)[-1])
-        os.remove(last_week)
+        #os.remove(last_week)
         fqc_start = datetime.strptime(fqc_start,'%Y-%m-%d')
         fqc_start = fqc_start+timedelta(days=1)
     if len(os.listdir(oqc_path)) == 0:
@@ -81,7 +81,7 @@ def get_start_date(fqc_path,oqc_path):
     else:
         oqc_start = os.listdir(oqc_path)[-2][:10]
         last_week = os.path.join(oqc_path,os.listdir(oqc_path)[-1])
-        os.remove(last_week)
+        #os.remove(last_week)
         oqc_start = datetime.strptime(oqc_start,'%Y-%m-%d')
         oqc_start = oqc_start+timedelta(days=1)
         
@@ -103,7 +103,9 @@ def do_crawl(exe_path,fqc_path,oqc_path):
                     driver = webdriver.Chrome(executable_path=exe_path,options=options) 
                     url = 'http://10.13.65.74:1014/'
                     driver.get(url)
+                    
                     driver.find_element_by_id('BTNSY').click()
+                    
                     driver.set_page_load_timeout(1200)
                     check_status += oqc_crawl(driver,start.strftime('%Y/%m/%d'),end,oqc_path)
                     check_status += fqc_crawl(driver,start.strftime('%Y/%m/%d'),end,fqc_path)
@@ -126,5 +128,5 @@ def do_crawl(exe_path,fqc_path,oqc_path):
               
                 
 if __name__ == '__main__':
-    #do_crawl(EXE_PATH,FQC_PATH,OQC_PATH)
+    do_crawl(EXE_PATH,FQC_PATH,OQC_PATH)
     pass
