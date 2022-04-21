@@ -144,9 +144,9 @@ def get_lot_info(lot_path,ai_df):
                     machine = str(pre_df.at[0,'VRSmachine'])
                 if len(opid) < 4:
                     try:
-                        id_df = pd.read_csv(os.path.join(lot_path,lot,panel,'AI.csv'), nrows=8, header = None, index_col=0)
-                    except:
                         id_df = pd.read_csv(os.path.join(lot_path,lot,panel,'VRS.csv'), nrows=8, header = None, index_col=0)
+                    except:
+                        id_df = pd.read_csv(os.path.join(lot_path,lot,panel,'AI.csv'), nrows=8, header = None, index_col=0)
                     current_id = id_df.at['OPID',1]
                     if len(str(current_id)) >= 4:
                         opid = str(current_id)
