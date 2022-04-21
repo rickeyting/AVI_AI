@@ -20,6 +20,9 @@ base_data_dir = os.path.join('..', 'data')
 ai_data_dir = os.path.join(base_data_dir, 'AI')
 past_data_dir = os.path.join('..',ai_data_dir,'ai_all_true.csv')
 #ip_address_check
+def current_time():
+    return '[{}]'.format(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'))
+
 if os.path.exists(r'\\10.19.13.40\DataFiles(Edit)'):
     ip_address = '10.19.13.40'
 if os.path.exists(r'\\192.168.0.111\DataFiles(Edit)'):
@@ -39,7 +42,16 @@ else:
     ai_df = pd.DataFrame(columns=['AVI','part','Date_Code','VRS','Part_No','lot','vrs_id','strips','CheckTime(min)','OK','NG','ALL','filter rate','visper','AI','size','type','model'])
 
 
-def merge_pics(df, x_columns='Step_Xvalue', y_columns='Step_Yvalue', resolution=0.005, frame_pixel=350, limit_frame=255): #mm
+def merge_pics(df2, df, x_columns='Step_Xvalue', y_columns='Step_Yvalue', resolution=0.005, frame_pixel=350, limit_frame=30): #mm
+    df2 = df2[['AVI_Image_Path', 'AI_Flag']]
+    df = df.drop('AI_Flag', axis = 1)
+    df = df.merge(df2, on='AVI_Image_Path', how='left')
+    df = df[df['AI_Flag'].astype(str) != 'OK']
+    side_list = list(dict.fromkeys(df['Side'].values.tolist()))
+    for i in range(len(side_list)):
+        df.loc[df['Side']==side_list[i], 'Step_Xvalue'] = df.loc[df['Side']==side_list[i], 'Step_Xvalue'] + 100*i
+    df = df[['Step_Xvalue','Step_Yvalue']]
+    df = df.sort_values(by='Step_Xvalue')
     frame_size = resolution * (frame_pixel - limit_frame)
     frame = frame_pixel * resolution
     #x,y = center
@@ -49,7 +61,6 @@ def merge_pics(df, x_columns='Step_Xvalue', y_columns='Step_Yvalue', resolution=
     #df['y1'] = df[y_columns] - frame_size
     #df['x2'] = df[x_columns] + frame_size
     #df['y2'] = df[y_columns] + frame_size
-    
     original_frame = np.array(df.values.tolist())
     x = original_frame[:,1]
     y = original_frame[:,2]
@@ -79,8 +90,9 @@ def check_unprocessed_date(check_dir,ai_df=ai_df):
     if len(ai_df) != 0:
         last_date = ai_df.iloc[-1]['AVI']
         last_date = (datetime.strptime(str(last_date), '%Y%m%d')-timedelta(days=5)).strftime('%Y%m%d')
-    print('UPDATE FROM ' +last_date)
+    print('{} UPDATE FROM '.format(current_time()) +last_date)
     unprocessed_list = [i for i in present_list if (len(i)==8)&(i>=last_date)]
+    #unprocessed_list = ['20220414']
     #print('STATUS:getting unprocessed date Done')
     return unprocessed_list
 
@@ -93,15 +105,15 @@ def check_unprocessed_lot(undo_date):
     present_part_list = os.listdir(os.path.join(ai_edit_dir,undo_date))
     for a in present_part_list:
         lot_path = os.path.join(ai_edit_dir,undo_date,a)
-        print('STATUS:checking ' + undo_date +' '+ a +' data is changed or not...')
+        print('{} checking '.format(current_time()) + undo_date +' '+ a +' data is changed or not...')
         if len(glob.glob((os.path.join(lot_path,'*\*\VRS.OK')))) == ai_df[(ai_df.AVI.astype(int) == int(undo_date))&(ai_df.part.astype(str) == str(a))]['strips'].sum():
-            print('STATUS:checking ' + undo_date +' '+ a +' data all Good')
+            print('{} checking '.format(current_time()) + undo_date +' '+ a +' data all Good')
             pass
         else:
             ai_df = ai_df[(ai_df.AVI.astype(int) != int(undo_date))|(ai_df.part.astype(str) != str(a))]
-            print('STATUS:updating ' + undo_date +' '+ a +' data...')
+            print('{} updating '.format(current_time()) + undo_date +' '+ a +' data...')
             ai_df = get_lot_info(lot_path,ai_df)
-            print('STATUS:updating ' + undo_date +' '+ a +' data Done')
+            print('{} updating '.format(current_time()) + undo_date +' '+ a +' data Done')
 
 
 
@@ -116,7 +128,7 @@ def get_lot_info(lot_path,ai_df):
                 panel_dir = os.listdir(os.path.join(lot_path,lot))
                 break
             except:
-                print('ReConneting')
+                print('{} ReConneting'.format(current_time()))
         opid = ''
         machine = ''
         vrs_pics = 0
@@ -131,11 +143,18 @@ def get_lot_info(lot_path,ai_df):
                 if len(str(machine)) < 1:
                     machine = str(pre_df.at[0,'VRSmachine'])
                 if len(opid) < 4:
-                    id_df = pd.read_csv(os.path.join(lot_path,lot,panel,'AI.csv'), nrows=8, header = None, index_col=0)
+                    try:
+                        id_df = pd.read_csv(os.path.join(lot_path,lot,panel,'AI.csv'), nrows=8, header = None, index_col=0)
+                    except:
+                        id_df = pd.read_csv(os.path.join(lot_path,lot,panel,'VRS.csv'), nrows=8, header = None, index_col=0)
                     current_id = id_df.at['OPID',1]
                     if len(str(current_id)) >= 4:
                         opid = str(current_id)
-                vrs_pics += merge_pics(pre_df[pre_df['AI_Flag']!='OK'])
+                try:
+                    origin_df = pd.read_csv(os.path.join(lot_path,lot,panel,'AI.csv').replace('DataFiles(Edit)','DataFiles'), header=9)
+                    vrs_pics += merge_pics(pre_df, origin_df)
+                except Exception as e:
+                    print(e)
                 concat_df = pd.concat([concat_df,pre_df])
             except Exception as e:
                 pass
@@ -220,6 +239,6 @@ if __name__ == '__main__':
             update_ai_data(ai_data_dir)
         except Exception as e:
             print(e)
-        print('SLEEPING')
+        print('{} SLEEPING'.format(current_time()))
         time.sleep(43200)
-        print('UPDATE')
+        print('{} UPDATE'.format(current_time()))
