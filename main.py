@@ -7,6 +7,7 @@ Created on Tue Mar  8 14:20:54 2022
 import os
 import pandas as pd
 from utils import avi_foqc_crawler, raw_data, merge_data
+pd.options.mode.chained_assignment = None
 
 root_dir = os.path.abspath('.')
 data_dir = os.path.join(root_dir,'data')
@@ -34,18 +35,20 @@ def pre_procss():
 
 if __name__ == '__main__':
     pre_procss()
-    avi_foqc_crawler.do_crawl(exe_dir,fqc_dir,oqc_dir)
-    raw_data.get_raw_data(ai_dir)
-    daily_df = merge_data.daily_record(ai_table)
+    #avi_foqc_crawler.do_crawl(exe_dir,fqc_dir,oqc_dir)
+    #raw_data.get_raw_data(ai_dir)
+    weekly_result = merge_data.separate_concat(ai_table, fqc_dir, oqc_dir)
+    merge_data.result_plt(weekly_result, output_dir)
+
+    #daily_df = merge_data.daily_record(ai_table)
     ai_df = pd.read_csv(ai_table)
-    anova_df = merge_data.all_concat(ai_table,fqc_dir,oqc_dir)
-    week_df_mp = merge_data.weekly_report(anova_df)
-    week_df_sample = merge_data.weekly_report(anova_df,'SAMPLE')
+    anova_df = merge_data.ai_data(ai_table)
+    #week_df_mp = merge_data.weekly_report(anova_df)
+    #week_df_sample = merge_data.weekly_report(anova_df,'SAMPLE')
     output_dic = {}
-    output_dic['week_mp'] = week_df_mp
-    output_dic['week_sample'] = week_df_sample
+    output_dic['weekly'] = weekly_result
+    #output_dic['week_sample'] = week_df_sample
     output_dic['anova'] = anova_df
-    output_dic['daily'] = daily_df
+    #output_dic['daily'] = daily_df
     output_dic['AI'] = ai_df
     merge_data.output_exl(output_dic,output_dir)
-    

@@ -73,7 +73,7 @@ def get_start_date(fqc_path,oqc_path):
     else:
         fqc_start = os.listdir(fqc_path)[-2][:10]
         last_week = os.path.join(fqc_path,os.listdir(fqc_path)[-1])
-        os.remove(last_week)
+        #os.remove(last_week)
         fqc_start = datetime.strptime(fqc_start,'%Y-%m-%d')
         fqc_start = fqc_start+timedelta(days=1)
     if len(os.listdir(oqc_path)) == 0:
@@ -81,7 +81,7 @@ def get_start_date(fqc_path,oqc_path):
     else:
         oqc_start = os.listdir(oqc_path)[-2][:10]
         last_week = os.path.join(oqc_path,os.listdir(oqc_path)[-1])
-        os.remove(last_week)
+        #os.remove(last_week)
         oqc_start = datetime.strptime(oqc_start,'%Y-%m-%d')
         oqc_start = oqc_start+timedelta(days=1)
         

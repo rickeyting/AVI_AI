@@ -119,6 +119,13 @@ def check_unprocessed_lot(undo_date):
 
 def get_lot_info(lot_path,ai_df):
     concat_list = []
+    size = lot_path.split('\\')[-1].split('-')[2]
+    if size == '10UM':
+        resolution = 0.01
+    elif size == '5UM':
+        resolution = 0.005
+    else:
+        resolution = 0.018
     for lot in os.listdir(lot_path):
         concat_df = pd.DataFrame()
         vrs_time = []
@@ -152,7 +159,7 @@ def get_lot_info(lot_path,ai_df):
                         opid = str(current_id)
                 try:
                     origin_df = pd.read_csv(os.path.join(lot_path,lot,panel,'AI.csv').replace('DataFiles(Edit)','DataFiles'), header=9)
-                    vrs_pics += merge_pics(pre_df, origin_df)
+                    vrs_pics += merge_pics(pre_df, origin_df, resolution=resolution)
                 except Exception as e:
                     print(e)
                 concat_df = pd.concat([concat_df,pre_df])
