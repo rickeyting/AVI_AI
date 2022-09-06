@@ -81,7 +81,7 @@ def ai_data(ai_path):
     df = pd.read_csv(ai_path)
     df = df[['AVI','VRS','Part_No','lot','strips','CheckTime(min)','OK','NG','ALL','type','size','AI','Date_Code','model']]
     df['Part_No'] = df.Part_No.str[:9]
-    df.loc[(df['model'] != 'R1') & (df['model'] != 'Z1') & (df.AI != 'Unactivated') & (df.AI != 'unfiltered'),'AI'] = 'OFF'
+    #df.loc[(df['model'] != 'R1') & (df['model'] != 'Z1') & (df.AI != 'Unactivated') & (df.AI != 'unfiltered'),'AI'] = 'OFF'
     df.lot = pd.to_numeric(df.lot, errors='coerce')
     df = df[df.AI == 'ON']
     df = df.drop('AI',axis = 1).reset_index()
@@ -112,13 +112,11 @@ def weekly_report(anova_df,status = 'MP'):
     df = df.fillna(0)
     df_m = df.resample('M',on='VRS').sum().reset_index()
     df_m.VRS = df_m.VRS.dt.month.astype(str) + '月總計'
-    #df_w = df.resample('W',on='VRS').sum().reset_index()
-    #df_w.VRS = 'W' + df_w.VRS.dt.week+1
     df_s = df.groupby('size').resample('W',on='VRS').sum().reset_index()
     df_s.VRS = df_s.VRS.astype(str) + 'W' + (df_s.VRS.dt.week+1).astype(str).str.rjust(2, "0")
     df_s = df_s.sort_values(by=['VRS','size'])
     df_s.VRS = df_s.VRS.str[10:]
-    result = pd.concat([df_m,df_s],sort=False)
+    result = pd.concat([df_m, df_s], sort=False)
     result['Pics/strip'] = round(result['ALL']/result['strips'],0)
     result['Filer rate'] = round(result['OK']/result['ALL']*100,1).astype(str) + '%'
     result['UPH'] = round(result['strips']/result['CheckTime(min)']*60,0)
@@ -146,37 +144,62 @@ def avi_cover_rate(fqc_path,sorting=['907','908']):
     result.loc[result['AVI'] != 'ON','AVI'] = 'OFF'
     result['Part_No'] = result['Part_No'].str[:9]
     result = result.replace(' ', '', regex=True)
-    #result['lot']=result['lot'].str[:4]
     return result
     
-def separate_concat(ai_path,fqc_path,oqc_path):
+def separate_concat(ai_path,fqc_path,oqc_path,other_conditions=None, other_freq='M'):
     oqc_df = oqc_data(oqc_path)
+    mp_date = datetime.strptime('2022/07/01', '%Y/%m/%d')
     oqc_df = oqc_df[['OQC_date', 'Part_No', 'check_times', 'reject_times', 'OQC_Strips','OQC_AVI']]
     oqc_df['reject_times'] = oqc_df['reject_times'].astype(int)
     oqc_df['OQC_date'] = pd.to_datetime(oqc_df['OQC_date'])
     oqc_df_Z01_sample = oqc_df.loc[oqc_df['Part_No'].str.contains('P328', na=False)]
+    oqc_df_mp = oqc_df_Z01_sample.loc[oqc_df_Z01_sample['OQC_date'] >= mp_date]  ##
+    oqc_df_Z01_sample = oqc_df_Z01_sample.loc[oqc_df_Z01_sample['OQC_date'] < mp_date] ##
+    print(len(oqc_df_mp))
+    oqc_df_sp = oqc_df_mp.loc[oqc_df_mp['Part_No'].str.contains('P3285', na=False)]
+    oqc_df_mp = oqc_df_mp.loc[~oqc_df_mp['Part_No'].str.contains('P3285', na=False)]
+    print(len(oqc_df_mp), len(oqc_df_sp))
+    oqc_df_Z01_sample = pd.concat([oqc_df_Z01_sample, oqc_df_sp])
+
     oqc_df_Z01_sample.loc[:, 'Part_No'] = 'SAMPLE'
     oqc_df_Z01 = oqc_df.loc[oqc_df['Part_No'].str.contains('P329|PJ5', na=False)]
+    oqc_df_Z01 = pd.concat([oqc_df_Z01, oqc_df_mp]) ##
     oqc_df_Z01.loc[:, 'Part_No'] = 'MP'
     oqc_df_GAN = oqc_df.loc[oqc_df['Part_No'].str.contains('GAN', na=False)]
     oqc_df_GAN.loc[:, 'Part_No'] = 'GAN'
+    ts = pd.DataFrame()
+    if other_conditions != None:
+        ts = oqc_df.loc[oqc_df['Part_No'].str.contains(other_conditions, na=False)]
+        ts.loc[:, 'Part_No'] = 'other'
+        ts = ts.groupby(['Part_No', 'OQC_AVI']).resample(other_freq, on='OQC_date').sum()
+
     oqc_df_Z01_sample = oqc_df_Z01_sample.groupby(['Part_No', 'OQC_AVI']).resample('M', on='OQC_date').sum()
     oqc_df_Z01 = oqc_df_Z01.groupby(['Part_No', 'OQC_AVI']).resample('M', on='OQC_date').sum()
     oqc_df_GAN = oqc_df_GAN.groupby(['Part_No', 'OQC_AVI']).resample('M', on='OQC_date').sum()
-    oqc_all = pd.concat([oqc_df_Z01_sample,oqc_df_Z01,oqc_df_GAN]).reset_index()
+    oqc_all = pd.concat([oqc_df_Z01_sample,oqc_df_Z01,oqc_df_GAN, ts]).reset_index()
     oqc_all = oqc_all.rename(columns={"OQC_date":"Date", 'OQC_AVI':'AVI'})
 
     ai_df = pd.read_csv(ai_path)
+    ai_df.loc[ai_df['model'] == 'G1', 'AI'] = 'ON'
+    ai_df.loc[(ai_df['model'] == 'G1') & (ai_df['OK'] == 0), 'AI'] = 'OFF'
     ai_df = ai_df[['VRS','Part_No','strips','CheckTime(min)','OK','NG','ALL','AI']]
     ai_df.loc[(ai_df['AI']=='ON') | (ai_df['AI']=='Beta'), 'AI'] = 'ON'
     ai_df.loc[(ai_df['AI']!='ON'), 'AI'] = 'OFF'
     ai_df['VRS'] = pd.to_datetime(ai_df['VRS'])
-    ai_df.loc[ai_df['AI'] == 'OFF', 'off_strip'] = ai_df.loc[ai_df['AI'] == 'OFF', 'strips']
-    ai_df.loc[ai_df['AI'] == 'OFF', 'strips'] = 0
-    ai_df = ai_df[['VRS','Part_No','strips','off_strip','CheckTime(min)','OK','NG','ALL']]
+    ai_df = ai_df.loc[ai_df['AI']=='ON']
+    #ai_df.loc[ai_df['AI'] == 'OFF', 'off_strip'] = ai_df.loc[ai_df['AI'] == 'OFF', 'strips']
+    #ai_df.loc[ai_df['AI'] == 'OFF', 'strips'] = 0
+    ai_df = ai_df[['VRS','Part_No','strips','CheckTime(min)','OK','NG','ALL']]
     ai_df_Z01_sample = ai_df.loc[ai_df['Part_No'].str.contains('P328', na=False)]
+    ai_df_mp = ai_df_Z01_sample.loc[ai_df_Z01_sample['VRS'] >= mp_date]  ##
+    ai_df_Z01_sample = ai_df_Z01_sample.loc[ai_df_Z01_sample['VRS'] < mp_date]  ##
+    ai_df_sp = ai_df_mp.loc[ai_df_mp['Part_No'].str.contains('P3285', na=False)]
+    ai_df_mp = ai_df_mp.loc[~ai_df_mp['Part_No'].str.contains('P3285', na=False)]
+    ai_df_Z01_sample = pd.concat([ai_df_Z01_sample, ai_df_sp])
     ai_df_Z01_sample.loc[:, 'Part_No'] = 'SAMPLE'
     ai_df_Z01 = ai_df.loc[ai_df['Part_No'].str.contains('P329|PJ5', na=False)]
+    ai_df_Z01 = pd.concat([ai_df_Z01, ai_df_mp])  ##
+    #ai_df_Z01.to_csv(r'D:\Project\AVI_AI\123.csv')
     ai_df_Z01.loc[:, 'Part_No'] = 'MP'
     ai_df_GAN = ai_df.loc[ai_df['Part_No'].str.contains('GAN', na=False)]
     ai_df_GAN.loc[:, 'Part_No'] = 'GAN'
@@ -191,33 +214,48 @@ def separate_concat(ai_path,fqc_path,oqc_path):
     fqc_df['FQC_date'] = pd.to_datetime(fqc_df['FQC_date'])
     fqc_df = fqc_df[['Part_No','FQC_date','FQC_Strips','OK_Strips','AVI']]
     cover_result_Z01_sample = fqc_df.loc[fqc_df['Part_No'].str.contains('P328', na=False)]
+    FQC_df_mp = cover_result_Z01_sample.loc[cover_result_Z01_sample['FQC_date'] >= mp_date]  ##
+    cover_result_Z01_sample = cover_result_Z01_sample.loc[cover_result_Z01_sample['FQC_date'] < mp_date]  ##
+    FQC_df_sp = FQC_df_mp.loc[FQC_df_mp['Part_No'].str.contains('P3285', na=False)]
+    FQC_df_mp = FQC_df_mp.loc[~FQC_df_mp['Part_No'].str.contains('P3285', na=False)]
+    cover_result_Z01_sample = pd.concat([cover_result_Z01_sample, FQC_df_sp])
+
     cover_result_Z01_sample.loc[:, 'Part_No'] = 'SAMPLE'
+
     cover_result_Z01_sample = cover_result_Z01_sample.groupby(['Part_No','AVI']).resample('M',on='FQC_date').sum().reset_index()
     cover_result_Z01 = fqc_df.loc[fqc_df['Part_No'].str.contains('P329|PJ5', na=False)]
+    cover_result_Z01 = pd.concat([cover_result_Z01, FQC_df_mp])  ##
     cover_result_Z01.loc[:, 'Part_No'] = 'MP'
     cover_result_Z01 = cover_result_Z01.groupby(['Part_No','AVI']).resample('M',on='FQC_date').sum().reset_index()
     cover_result_GAN = fqc_df.loc[fqc_df['Part_No'].str.contains('GAN', na=False)]
     cover_result_GAN.loc[:, 'Part_No'] = 'GAN'
     cover_result_GAN = cover_result_GAN.groupby(['Part_No','AVI']).resample('M',on='FQC_date').sum().reset_index()
-    fqc_all = pd.concat([cover_result_Z01_sample,cover_result_Z01,cover_result_GAN])
+    ts = pd.DataFrame()
+    if other_conditions != None:
+        ts = fqc_df.loc[fqc_df['Part_No'].str.contains(other_conditions, na=False)]
+        ts.loc[:, 'Part_No'] = 'other'
+        ts = ts.groupby(['Part_No', 'AVI']).resample(other_freq, on='FQC_date').sum().reset_index()
+    fqc_all = pd.concat([cover_result_Z01_sample,cover_result_Z01,cover_result_GAN,ts])
     fqc_all = fqc_all.rename(columns={"FQC_date":"Date"})
     result = fqc_all.merge(oqc_all ,on=['Part_No','AVI','Date'], how='left').merge(ai_all, on=['Part_No','AVI','Date'], how='left')
+    result['Date'] = pd.to_datetime(result['Date'])
+    result = result.loc[result['Date'] > datetime.strptime('2022/1/1', '%Y/%m/%d')]
+    result['Avg. Points'] = result['ALL'] / result['strips']
+    result['UPH'] = result['strips'] / result['CheckTime(min)'] * 60
+    result['Effciency'] = result['UPH']/90
+    result.loc[:, 'Filter rate'] = result['OK'] / result['ALL'] * 100
+    result.loc[:, 'rejection'] = result['reject_times'] / result['check_times'] * 100
+    result.loc[:, 'rejection'] = result.loc[:, 'rejection'].fillna(0)
+    coverage = result[['Part_No', 'Date', 'FQC_Strips']].groupby(['Part_No', 'Date']).sum()
+    coverage = coverage.rename(columns={"FQC_Strips": "FQC_ALL"})
+    result = result.merge(coverage, on=['Part_No', 'Date'], how='left')
+    result['AVI_coverage'] = result['FQC_Strips'] / result['FQC_ALL'] * 100
     return result
 
 def result_plt(df, output_path):
     result = df
-    result['Date'] = pd.to_datetime(result['Date'])
-    result = result.loc[result['Date'] > datetime.strptime('2022/1/1', '%Y/%m/%d')]
     types = list(set(result['Part_No'].values.tolist()))
-    result['UPH'] = result['strips']/result['CheckTime(min)']*60
-    result.loc[:, 'Filter rate'] = result['OK']/result['ALL']*100
-    result.loc[:, 'rejection'] = result['reject_times']/result['check_times']*100
-    result.loc[:, 'rejection'] = result.loc[:, 'rejection'].fillna(0)
-    coverage = result[['Part_No','Date','FQC_Strips']].groupby(['Part_No','Date']).sum()
-    coverage = coverage.rename(columns={"FQC_Strips":"FQC_ALL"})
-    result = result.merge(coverage, on=['Part_No','Date'], how='left')
-    result['AVI_coverage'] = result['FQC_Strips']/result['FQC_ALL']*100
-    result['AI_coverage'] = result['strips']/(result['strips']+result['off_strip'])*result['AVI_coverage']
+    #result['AI_coverage'] = result['strips']/(result['strips']+result['off_strip'])*result['AVI_coverage']
     
     for i in types:
         fig = plt.figure()
@@ -236,13 +274,13 @@ def result_plt(df, output_path):
         for d in text_lit:
             ax11.text(d[0].strftime('%Y-%m-%d'), d[1]+5, "{:.1f}%".format(d[1]),fontsize=12, ha="center", color='darkblue')
         if i == 'MP':
-            ax1.plot([-0.5,5.5], [90,90], '--', linewidth = 0.7, color='dimgray')
+            ax1.plot([-0.5,7.5], [90,90], '--', linewidth = 0.7, color='dimgray')
             ax1.text(-0.5,95,'base-90',color='dimgray')
         ax11.set_ylim(0, 100)
         #ax1.set_xticks([])
         ax1.set_yticks([100,200,300,400])
         ax11.set_yticks([20,40,60,80])
-        ax1.legend([line11,line12],['UPH','Filter rate'], loc='upper center')
+        ax1.legend([line11,line12],['UPH','Filter rate'], loc='upper right')
         fig.set_figheight(3)
         fig.set_figwidth(12)
         fig.savefig('{}\{}_ai.jpg'.format(output_path, i), dpi = 200,bbox_inches='tight')
@@ -253,7 +291,7 @@ def result_plt(df, output_path):
         ax2 = plt.subplot()
         ax2.set_title('OQC-rejection',x=0.08,y=0.85)
         line21, = ax2.plot(result.loc[(result['Part_No'] == i) & (result['AVI'] == 'ON'), 'Date'].astype(str),result.loc[(result['Part_No'] == i) & (result['AVI'] == 'ON'), 'rejection'],color="darkgreen",marker = "o", linestyle= "-",linewidth = '0.8')
-        line22, = ax2.plot(result.loc[(result['Part_No'] == i) & (result['AVI'] == 'ON'), 'Date'].astype(str),result.loc[(result['Part_No'] == i) & (result['AVI'] == 'OFF'), 'rejection'],color="darkorange",marker = "o", linestyle= "-",linewidth = '0.8')
+        line22, = ax2.plot(result.loc[(result['Part_No'] == i) & (result['AVI'] == 'OFF'), 'Date'].astype(str),result.loc[(result['Part_No'] == i) & (result['AVI'] == 'OFF'), 'rejection'],color="darkorange",marker = "o", linestyle= "-",linewidth = '0.8')
         text_lit = result.loc[(result['Part_No'] == i) & (result['AVI'] == 'ON')][['Date', 'rejection']].values.tolist()
         for d in text_lit:
             ax2.text(d[0].strftime('%Y-%m-%d'), d[1]-4, "{:.1f}%".format(d[1]),fontsize=12, ha="center", color='darkgreen')
@@ -263,7 +301,7 @@ def result_plt(df, output_path):
         ax2.set_ylim(-10, 30)
         ax2.set_yticks([0,10,20])
         if i == 'MP':
-            ax2.plot([0,5], [6.2,6.2], '--', linewidth = 0.7, color='dimgray')
+            ax2.plot([0,7], [6.2,6.2], '--', linewidth = 0.7, color='dimgray')
             ax2.text(-0.45,5.5,'base-6.2%',color='dimgray')
         #ax2.set_xticks([])
         ax2.legend([line21,line22],['AVI-ON','AVI-OFF'], loc='upper center')

@@ -8,6 +8,7 @@ import os
 import sys
 import shutil
 from datetime import datetime, date
+import pandas as pd
 
 BASE_DATA_DIR = os.path.abspath(os.path.join('..', 'data'))
 AI_DIR = os.path.join(BASE_DATA_DIR, 'AI')
