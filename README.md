@@ -2,14 +2,14 @@
 Auto_report_daily : The report include AI result, FQC and OQC report. Merge three info to trace the status of AI.
 
 
-##SUMMARY
+#SUMMARY
 
        1.AI raw date update per 12hours. Location:AVI_AI\utils\local_run. Export the .py to .exe and run in local PC for crawling the ai info from EDGE.
        2.FQC & OQC report. Search and copy from run card system. Automatic Update by module selenium and Edgedriver.
        3.Current merge keys : Part NUM., Lot NUM and Date code. 
        4.Output : Daily processing record sorted by resolution, summary of week & month, merge table , AI raw date.
        
-##FUNCTIONS
+#FUNCTIONS
 
 1.avi_foqc_crawler.py
 
@@ -146,7 +146,7 @@ Auto_report_daily : The report include AI result, FQC and OQC report. Merge thre
 
        pre_procss():create the folders for saving files
        
-##Process flows
+#Process flows
 * pre_process : create the folders for saving files
 * avi_foqc_crawler.do_crawl : crawling fqc and oqc files
 * raw_data.get_raw_data : copy ai_all.csv file
