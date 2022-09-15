@@ -32,15 +32,61 @@ Change Edge IP: there are two path in .py files must be changed when Edge IP is 
 
               if ip_address == '192.168.0.111':
                   past_data_dir = r'\\{}\ScanImages\ai_all.csv'.format(ip_address)
-              
 
+Process logic: 
+
+       OQC:
+       merge_data.py oqc_data
+       1. Get '檢驗日期', '料號', 'D/C', '批號', '檢驗次數', '狀態' and '批量'
+       2. AVI status = ON: lot contains 'V'; OFF': lot not contains 'V'
+       3. reject_times = count of '檢驗次數' and '狀態'='退回'
+       4. check_times = count of '檢驗次數'
+       merge_data.py separate_concat
+       1. oqc sample = part number contains 'P328' and the date before '2022/07/01'; part number contains 'P3285' after '2022/07/01'
+       2. oqc mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' and 'PJ5'
+       3. oqc gan = part number contains 'GAN'
+       4. oqc other = part number contains 'P32872' and 'P32873'
+       5. Groupby date and AVI status
+       FQC:
+       merge_data.py avi_cover_rate
+       1. Get 'Time', 'Part No.', 'Date Code', 'Lot No.', 'Total Strips', 'OK & X-Out(Strips)' and 'Remark'
+       2. AVI status = ON: Remark contains 'V'; OFF': Remark not contains 'V'
+       merge_data.py separate_concat
+       1. fqc sample = part number contains 'P328' and the date before '2022/07/01'; part number contains 'P3285' after '2022/07/01'
+       2. fqc mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' and 'PJ5'
+       3. fqc gan = part number contains 'GAN'
+       4. fqc other = part number contains 'P32872' and 'P32873'
+       5. Groupby date and AVI status
+       AI:
+       merge_data.py ai_data
+       1. Get 'AVI', 'VRS', 'Part_No', 'lot', 'strips', 'CheckTime(min)', 'OK', 'NG', 'ALL', 'type', 'size', 'AI', 'Date_Code' and 'model'
+       2. Filter 'AI' = 'ON'
+       merge_data.py separate_concat
+       1. AI sample = part number contains 'P328' and the date before '2022/07/01'; part number contains 'P3285' after '2022/07/01'
+       2. AI mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' and 'PJ5'
+       3. AI gan = part number contains 'GAN'
+       4. AI other = part number contains 'P32872' and 'P32873'
+       5. Groupby date
+       Output:
+       merge_data.py separate_concat
+       1. Merge FQC, OQC and AI
+       2. Keep the data after '2022/1/1'
+       3. Avg. Points = 'ALL'/'strips'
+       4. UPH = 'strips'/'CheckTime(min)'
+       5. Effciency = 'UPH'/90
+       6. Filter rate = 'OK'/'ALL'
+       7. rejection = 'reject_times'/'check_times'
+       8. AVI_coverage = 'FQC_Strips'/('FQC_Strips' of AVI Status = 'ON' + 'FQC_Strips' of AVI Status = 'OFF') 
+       
+       
+       
 ## FUNCTIONS
 
 1.avi_foqc_crawler.py
 
        fqc_crawl: crawling fqc data from the run-card browser.
           fqc_crawl(driver, start_date, end_date, fqc_path)
-          Parameters : 
+          Parameters : 'reject_times'/'check_times'
                  driver: web-drive
                  start_date : time
                         The start date to download the file
@@ -207,17 +253,20 @@ Change Edge IP: there are two path in .py files must be changed when Edge IP is 
                  ai_df: dataframe
                      The ai_all.csv file to dataframe
        
-       check_unprocessed_lot: Check all part_no below the date. Skip the numbers of VRS.OK which same with content of ai_csv file. 
+       check_unprocessed_lot: Check all part_no below the date. Skip the part number which numbers of VRS.OK are same with content of ai_csv file. 
           check_unprocessed_lot(undo_date)
           Parameters : 
                  undo_date: string
                      The date in undo list(output from check_unprocessed_date function)
        
-       get_lot_info:  
+       get_lot_info: calculate 'Scan date', 'part number from the path', 'VRS checked date', 'Part_No','lot','lot from the path','strip numbers','CheckTime(min)','point numbers','filter rate','machine code','AI status','scan resolution','scan type','activated ai model', 'Date_Code of first panel','OPID','VRS code' and 'pic number showed on vrs'
           get_lot_info(lot_path,ai_df)
           Parameters : 
-                 undo_date: string
-                     The date in undo list(output from check_unprocessed_date function)
+                 lot_path: string
+                     The dir of lot
+                 ai_df: dataframe
+                     The ai_all.csv file to dataframe
+                 
                  
                      
                      
