@@ -85,7 +85,7 @@ Process logic:
 
        fqc_crawl: crawling fqc data from the run-card browser.
           fqc_crawl(driver, start_date, end_date, fqc_path)
-          Parameters : 'reject_times'/'check_times'
+          Parameters : 
                  driver: web-drive
                  start_date : time
                         The start date to download the file
