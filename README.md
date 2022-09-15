@@ -204,7 +204,7 @@ Change Edge IP:
 
 ![image](https://user-images.githubusercontent.com/28131615/190298681-f5e12a0f-6761-4f82-aacd-df292dfee34d.png)
 
-The center of images in the box(350-30)*(350-30) will be merged to one.
+The center of images in the box(350-30)*(350-30) will be merged to one. There are three images. After merge only two images will be showed up on VRS. coz the Image A is out of range.
 
 
        oqc_crawl: crawling on data from the run-card browser.
