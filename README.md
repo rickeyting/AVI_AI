@@ -43,7 +43,7 @@ Process logic:
        4. check_times = count of '檢驗次數'
        merge_data.py separate_concat
        1. oqc sample = part number contains 'P328' and the date before '2022/07/01'; part number contains 'P3285' after '2022/07/01'
-       2. oqc mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' and 'PJ5'
+       2. oqc mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' or 'PJ5'
        3. oqc gan = part number contains 'GAN'
        4. oqc other = part number contains 'P32872' and 'P32873'
        5. Groupby date and AVI status
@@ -53,7 +53,7 @@ Process logic:
        2. AVI status = ON: Remark contains 'V'; OFF': Remark not contains 'V'
        merge_data.py separate_concat
        1. fqc sample = part number contains 'P328' and the date before '2022/07/01'; part number contains 'P3285' after '2022/07/01'
-       2. fqc mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' and 'PJ5'
+       2. fqc mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' or 'PJ5'
        3. fqc gan = part number contains 'GAN'
        4. fqc other = part number contains 'P32872' and 'P32873'
        5. Groupby date and AVI status
@@ -63,7 +63,7 @@ Process logic:
        2. Filter 'AI' = 'ON'
        merge_data.py separate_concat
        1. AI sample = part number contains 'P328' and the date before '2022/07/01'; part number contains 'P3285' after '2022/07/01'
-       2. AI mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' and 'PJ5'
+       2. AI mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' or 'PJ5'
        3. AI gan = part number contains 'GAN'
        4. AI other = part number contains 'P32872' and 'P32873'
        5. Groupby date
