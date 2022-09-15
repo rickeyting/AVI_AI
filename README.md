@@ -65,7 +65,7 @@ Process logic:
        1. AI sample = part number contains 'P328' and the date before '2022/07/01'; part number contains 'P3285' after '2022/07/01'
        2. AI mp = part number contains 'P328', the date after '2022/07/01' and not contains 'P3285'; part number contains 'P329' or 'PJ5'
        3. AI gan = part number contains 'GAN'
-       4. AI other = part number contains 'P32872' and 'P32873'
+       4. AI other = part number contains 'P32872' or 'P32873'
        5. Groupby date
        Output:
        merge_data.py separate_concat
