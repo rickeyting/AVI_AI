@@ -20,6 +20,7 @@ Auto_report_daily: The report includes AI results, FQC, and OQC reports. Merge t
 ## Notice
 
 Change Edge IP:
+
        raw_data.py(row 15)
               target_dir = r'\\10.19.13.40\ScanImages\ai_all.csv'
        avi_ai_crawler.py(row 26~32)
