@@ -229,7 +229,7 @@ Process logic:
 7. Get images number showed on VRS(column name: vrs_pics)
 8. Concat all ai.csv
 9. Sum all vrs.ok created time
-10. Get checked date(VRS)
+10. Get checked date(column name: VRS)
 11. Get date code(column name: date_code)
 12. Get numbers of points and ai status(column name: OK, NG, ALL, AI)
 13. Calculate filter rate(column name: filter_rate)
