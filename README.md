@@ -6,7 +6,7 @@ Auto_report_daily: The report includes AI results, FQC, and OQC reports. Merge t
 
        1. AI raw date update per 12 hours. Location:AVI_AI\utils\local_run. Export the .py to .exe and run on the local PC for crawling the ai info from EDGE.
        2. FQC & OQC report. Search and copy from the run card system. Automatic Update by module selenium and Edgedriver.
-       3. Current merge keys: Part NUM., Lot NUM, and Date code. 
+       3. Current merge keys: Date and AVI status. 
        4. Output: Daily processing record sorted by resolution, a summary of week & month, merge table, AI raw date.
 
 ## Weekly Report Process flows
