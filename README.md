@@ -157,7 +157,7 @@ Process logic:
                  oqc_path : string
                         The dir of oqc documents
 
-       ai_data: arrange the format of columns and filter out.
+       ai_data: arrange the format of columns and filter 'AI' = ON.
           ai_data(ai_path)
           Parameters : 
                  ai_path: string
