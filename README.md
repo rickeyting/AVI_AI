@@ -216,13 +216,34 @@ Process logic:
        
        
 # Daily Update Process flows
-* pre_process: create the folders for saving files
-* avi_foqc_crawler.do_crawl: crawling fqc and oqc files
-* raw_data.get_raw_data : copy ai_all.csv file
-* merge_data.separate_concat: merge ai, fqc, and oqc files
-* merge_data.result_plt: plot trend charts
-* Arrange all sheets and export excel.
-
+* main: run update_ai_data per 43200s
+* update_ai_data: get list of date from check_unprocessed_date and activate check_unprocessed_lot with date
+* check_unprocessed_lot : check all lot in date folder. Update the content if the number of VRS.OK diff with past ai_all.csv.
+* get_lot_info:
+       1. Get resolution from path.(column name: size)
+       2. Check lots in the part folder
+       3. Check the internet status(try till link success)
+       4. walk-through each panel
+       5. check exists VRS.csv or not(AI unfiltered)
+       6. Read ai.csv to get VRSmachine code and OPID
+       7. Get images number showed on VRS(merge_pics)
+       8. Concat all ai.csv
+       9. Sum all vrs.ok created time
+       10. Get checked date(VRS)
+       11. Get date code(column name: date_code)
+       12. Get numbers of points and ai status(column name: OK, NG, ALL, AI)
+       13. Calculate filter rate(column name: filter_rate)
+       14. Get checked time per lot(column name: checktime(min))
+       15. Get lot(column name: lot)
+       16. Get scanned date(column name: AVI)
+       17. Get part numbers in the path(column name: part)
+       18. Get AVI code(column name: visper)
+       19. Get processed part numbers(column name: part_no)
+       20. Get resolution.(column name: size)
+       21. Get model name(column name: model)
+       22. Get type-1x,2x,sample,NO1(column name: type)
+       23. Kick off wrong format data
+       24. Update to current ai_all.csv
 
 ## FUNCTIONS
 
@@ -262,11 +283,16 @@ Process logic:
           get_lot_info(lot_path,ai_df)
           Parameters : 
                  lot_path: string
-                     The dir of lot
+                     The dir of part number
                  ai_df: dataframe
                      The ai_all.csv file to dataframe
-                 
-                 
+       
+       update_ai_data: Combine above functions to run. Get date and update by lot.
+          update_ai_data(check_dir)
+          Parameters : 
+                 check_dir: dataframe
+                     The ai_all.csv file to dataframe
+             
                      
                      
 # merge_pics       
