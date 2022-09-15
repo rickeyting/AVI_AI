@@ -11,135 +11,135 @@ SUMMARY
        
 FUNCTIONS
 
-       1.main.py
-              * pre_process:create the folders.
-              pre_process()
-       2.avi_foqc_crawler.py
-              * fqc_crawl:crawling fqc data from run-card browser.
-                     fqc_crawl(driver, start_date, end_date, fqc_path)
-                     Parameters : 
-                            driver : web-drive
-                            start_date : time
-                                   The start date to download the file
-                            end_date : time
-                                   The end date to download the file
-                            fqc_path : string
-                                   The dir of fqc documents
-                                   
-              * oqc_crawl:crawling oqc data from run-card browser.
-                     oqc_crawl(driver, start_date, end_date, oqc_path)
-                     Parameters : 
-                            driver : web-drive
-                            start_date : time
-                                   The start date to download the file
-                            end_date : time
-                                   The end date to download the file
-                            oqc_path : string
-                                   The dir of oqc documents
-                                   
-              * get_start_date:check the last download history to make sure when should be started in this time. It will delete the last file and output the date of second to last date(filename) plus 1 day.
-                     get_start_date(fqc_path, oqc_path)
-                     Parameters : 
-                            fqc_path : string
-                                   The dir of fqc documents
-                            oqc_path : string
-                                   The dir of oqc documents
-                                   
-              * do_crawl:combibe above to do "activate browser" "insert info" "download"
-                     do_crawl(exe_path, fqc_path, oqc_path)
-                     Parameters : 
-                            exe_path : the path of msedgedriver.exe
-                            fqc_path : string
-                                   The dir of fqc documents
-                            oqc_path : string
-                                   The dir of oqc documents
-                                  
-       2.raw_data.py
-              * connect_test:check the link is available or not.
-                     connect_test(save_path)
-                     Parameters : 
-                            save_path : string
-                                   The dir of ai documents
-                                   
-              * get_raw_data:copy ai file to ai dir.
-                     get_raw_data(ai_data_dir)
-                     Parameters : 
-                            ai_data_dir : string
-                                   the path of ai_all.csv
-       
-       3.merge_data.py
-              * daily_record:sum ai history ny day. un-activate
-                     daily_record(ai_path)
-                     Parameters : 
-                            ai_path : string
-                                   The dir of ai_all.csv
-                                   
-              * fqc_data:merge all csv files in fqc folder. un-activate
-                     fqc_data(fqc_path)
-                     Parameters : 
-                            fqc_path : string
-                                   The dir of fqc documents
-                                   
-              * oqc_data:merge all csv files in oqc folder.
-                     oqc_data(oqc_path)
-                     Parameters : 
-                            oqc_path : string
-                                   The dir of oqc documents
-                                   
-              * ai_data:arrange the format of columns and filter out.
-                     ai_data(ai_path)
-                     Parameters : 
-                            ai_path : string
-                                   The dir of ai_all.csv
-                                   
-              * all_concat:merge ai, fqc and oqc tables. un-activate
-                     all_concat(ai_path,fqc_path,oqc_path)
-                     Parameters : 
-                            ai_path : string
-                                   The dir of ai_all.csv
-                            fqc_path : string
-                                   The dir of fqc documents 
-                            oqc_path : string
-                                   The dir of oqc documents 
-                                   
-              * weekly_report:output the result of concat by part_no and lot. un-activate
-                     weekly_report(anova_df,status = 'MP')
-                     Parameters : 
-                            anova_df : dataframe
-                                   the dataframe merged by part_no and lot
-              
-              * avi_cover_rate:same with function fqc_data. Count in the AVI off data for cover rate.
-                     avi_cover_rate(fqc_path)
-                     Parameters : 
-                            fqc_path : string
-                                   The dir of fqc documents
-              
-              * separate_concat:merge AI, FQC and OQC files by month and output sample, mp and gan result.
-                     separate_concat(ai_path,fqc_path,oqc_path,other_conditions=None, other_freq='M')
-                     Parameters : 
-                            ai_path : string
-                                   The dir of ai_all.csv
-                            fqc_path : string
-                                   The dir of fqc documents 
-                            oqc_path : string
-                                   The dir of oqc documents
-                            other_conditions : string ex:'P32872|P32873' output 872 and 873 result.
-                                   conditions to output other reuslt
-                            other_freq : 'd' 'W' 'M'
-                                   The frequence of group up.
-              
-              * result_plt:plot the trend chart.
-                     result_plt(df, output_path)
-                     Parameters : 
-                            df : dataframe
-                                   The dataframe from function "separate_concat"
-              
-              * output_exl:export the excel.
-                     output_exl(sheets,output_path)
-                     Parameters : 
-                            sheets : dictionary
-                                   The sheets will be converted to excel
-                            output_path : string
-                                   The dir of output folder
+1.main.py
+       * pre_process:create the folders.
+       pre_process()
+2.avi_foqc_crawler.py
+       * fqc_crawl:crawling fqc data from run-card browser.
+              fqc_crawl(driver, start_date, end_date, fqc_path)
+              Parameters : 
+                     driver : web-drive
+                     start_date : time
+                            The start date to download the file
+                     end_date : time
+                            The end date to download the file
+                     fqc_path : string
+                            The dir of fqc documents
+
+       * oqc_crawl:crawling oqc data from run-card browser.
+              oqc_crawl(driver, start_date, end_date, oqc_path)
+              Parameters : 
+                     driver : web-drive
+                     start_date : time
+                            The start date to download the file
+                     end_date : time
+                            The end date to download the file
+                     oqc_path : string
+                            The dir of oqc documents
+
+       * get_start_date:check the last download history to make sure when should be started in this time. It will delete the last file and output the date of second to last date(filename) plus 1 day.
+              get_start_date(fqc_path, oqc_path)
+              Parameters : 
+                     fqc_path : string
+                            The dir of fqc documents
+                     oqc_path : string
+                            The dir of oqc documents
+
+       * do_crawl:combibe above to do "activate browser" "insert info" "download"
+              do_crawl(exe_path, fqc_path, oqc_path)
+              Parameters : 
+                     exe_path : the path of msedgedriver.exe
+                     fqc_path : string
+                            The dir of fqc documents
+                     oqc_path : string
+                            The dir of oqc documents
+
+2.raw_data.py
+       * connect_test:check the link is available or not.
+              connect_test(save_path)
+              Parameters : 
+                     save_path : string
+                            The dir of ai documents
+
+       * get_raw_data:copy ai file to ai dir.
+              get_raw_data(ai_data_dir)
+              Parameters : 
+                     ai_data_dir : string
+                            the path of ai_all.csv
+
+3.merge_data.py
+       * daily_record:sum ai history ny day. un-activate
+              daily_record(ai_path)
+              Parameters : 
+                     ai_path : string
+                            The dir of ai_all.csv
+
+       * fqc_data:merge all csv files in fqc folder. un-activate
+              fqc_data(fqc_path)
+              Parameters : 
+                     fqc_path : string
+                            The dir of fqc documents
+
+       * oqc_data:merge all csv files in oqc folder.
+              oqc_data(oqc_path)
+              Parameters : 
+                     oqc_path : string
+                            The dir of oqc documents
+
+       * ai_data:arrange the format of columns and filter out.
+              ai_data(ai_path)
+              Parameters : 
+                     ai_path : string
+                            The dir of ai_all.csv
+
+       * all_concat:merge ai, fqc and oqc tables. un-activate
+              all_concat(ai_path,fqc_path,oqc_path)
+              Parameters : 
+                     ai_path : string
+                            The dir of ai_all.csv
+                     fqc_path : string
+                            The dir of fqc documents 
+                     oqc_path : string
+                            The dir of oqc documents 
+
+       * weekly_report:output the result of concat by part_no and lot. un-activate
+              weekly_report(anova_df,status = 'MP')
+              Parameters : 
+                     anova_df : dataframe
+                            the dataframe merged by part_no and lot
+
+       * avi_cover_rate:same with function fqc_data. Count in the AVI off data for cover rate.
+              avi_cover_rate(fqc_path)
+              Parameters : 
+                     fqc_path : string
+                            The dir of fqc documents
+
+       * separate_concat:merge AI, FQC and OQC files by month and output sample, mp and gan result.
+              separate_concat(ai_path,fqc_path,oqc_path,other_conditions=None, other_freq='M')
+              Parameters : 
+                     ai_path : string
+                            The dir of ai_all.csv
+                     fqc_path : string
+                            The dir of fqc documents 
+                     oqc_path : string
+                            The dir of oqc documents
+                     other_conditions : string ex:'P32872|P32873' output 872 and 873 result.
+                            conditions to output other reuslt
+                     other_freq : 'd' 'W' 'M'
+                            The frequence of group up.
+
+       * result_plt:plot the trend chart.
+              result_plt(df, output_path)
+              Parameters : 
+                     df : dataframe
+                            The dataframe from function "separate_concat"
+
+       * output_exl:export the excel.
+              output_exl(sheets,output_path)
+              Parameters : 
+                     sheets : dictionary
+                            The sheets will be converted to excel
+                     output_path : string
+                            The dir of output folder
                                    
              
