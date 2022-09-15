@@ -1,5 +1,5 @@
 # AVI_AI
-Auto_report_daily: The report includes AI results, FQC, and OQC reports. Merge three pieces of info to trace the status of AI.
+The report includes AI results, FQC, and OQC reports. Merge three pieces of info to trace the status of AI.
 
 
 ## SUMMARY
@@ -9,7 +9,7 @@ Auto_report_daily: The report includes AI results, FQC, and OQC reports. Merge t
        3. Current merge keys: Date and AVI status. 
        4. Output: Processing record sorted by 'MP', 'SAMPLE', 'GAN' and 'OTHER'. Summary by month.
 
-## Weekly Report Process flows(main.py)
+# Weekly Report Process flows(main.py)
 * pre_process: create the folders for saving files
 * avi_foqc_crawler.do_crawl: crawling fqc and oqc files
 * raw_data.get_raw_data : copy ai_all.csv file
@@ -216,7 +216,7 @@ Process logic:
        pre_procss():create the folders for saving files
        
        
-## Daily Update Process flows
+# Daily Update Process flows
 * pre_process: create the folders for saving files
 * avi_foqc_crawler.do_crawl: crawling fqc and oqc files
 * raw_data.get_raw_data : copy ai_all.csv file
