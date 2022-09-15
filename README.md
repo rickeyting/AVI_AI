@@ -9,14 +9,6 @@ The report includes AI results, FQC, and OQC reports. Merge three pieces of info
        3. Current merge keys: Date and AVI status. 
        4. Output: Processing record sorted by 'MP', 'SAMPLE', 'GAN' and 'OTHER'. Summary by month.
 
-# Weekly Report Process flows(main.py)
-* pre_process: create the folders for saving files
-* avi_foqc_crawler.do_crawl: crawling fqc and oqc files
-* raw_data.get_raw_data : copy ai_all.csv file
-* merge_data.separate_concat: merge ai, fqc, and oqc files
-* merge_data.result_plt: plot trend charts
-* Arrange all sheets and export excel.
-
 ## Notice
 
 Change Edge IP: there are two path in .py files must be changed when Edge IP is changed.
@@ -77,8 +69,15 @@ Process logic:
        6. Filter rate = 'OK'/'ALL'
        7. rejection = 'reject_times'/'check_times'
        8. AVI_coverage = 'FQC_Strips'/('FQC_Strips' of AVI Status = 'ON' + 'FQC_Strips' of AVI Status = 'OFF') 
-       
-       
+    
+    
+# Weekly Report Process flows(main.py)
+* pre_process: create the folders for saving files
+* avi_foqc_crawler.do_crawl: crawling fqc and oqc files
+* raw_data.get_raw_data : copy ai_all.csv file
+* merge_data.separate_concat: merge ai, fqc, and oqc files
+* merge_data.result_plt: plot trend charts
+* Arrange all sheets and export excel.       
        
 ## FUNCTIONS
 
