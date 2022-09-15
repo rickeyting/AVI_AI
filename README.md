@@ -19,10 +19,11 @@ Auto_report_daily: The report includes AI results, FQC, and OQC reports. Merge t
 
 ## Notice
 
-Change Edge IP:
+Change Edge IP: there are two path in .py files must be changed when Edge IP is changed.
 
        raw_data.py(row 15)
               target_dir = r'\\10.19.13.40\ScanImages\ai_all.csv'
+              
        avi_ai_crawler.py(row 26~32)
               if os.path.exists(r'\\10.19.13.40\DataFiles(Edit)'):
                   ip_address = '10.19.13.40'
@@ -181,7 +182,7 @@ Change Edge IP:
 ## FUNCTIONS
 
 1.avi_ai_crawler.py
-
+       
        merge_pics: Get the numbers of image which will be showed on VRS
           merge_pics(df2, df, x_columns='Step_Xvalue', y_columns='Step_Yvalue', resolution=0.005, frame_pixel=350, limit_frame=30)
           Parameters : 
@@ -199,22 +200,31 @@ Change Edge IP:
                      The merge size. Pics will be merge 
                  limit_frame : int
                      The puffer of frame
+       
+       check_unprocessed_date: Check the last processed date in ai_all.csv and subtract 5 days to be the start date. (Output the date list from start date to current date. The code won't update the content which out of the list)
+          check_unprocessed_date(ai_df)
+          Parameters : 
+                 ai_df: dataframe
+                     The ai_all.csv file to dataframe
+       
+       check_unprocessed_lot: Check all part_no below the date. Skip the numbers of VRS.OK which same with content of ai_csv file. 
+          check_unprocessed_lot(undo_date)
+          Parameters : 
+                 undo_date: string
+                     The date in undo list(output from check_unprocessed_date function)
+       
+       get_lot_info:  
+          get_lot_info(lot_path,ai_df)
+          Parameters : 
+                 undo_date: string
+                     The date in undo list(output from check_unprocessed_date function)
+                 
                      
                      
 # merge_pics       
 
 ![image](https://user-images.githubusercontent.com/28131615/190298681-f5e12a0f-6761-4f82-aacd-df292dfee34d.png)
 
-The center of images in the box(350-30)*(350-30) will be merged to one. There are three images. After merge only two images will be showed up on VRS. coz the Image A is out of range.
+The center of images in the box(350-30)*(350-30) will be merged to one. There are three images. After merge only two images will be showed up on VRS. Coz the Image A is out of range.
 
 
-       oqc_crawl: crawling on data from the run-card browser.
-          oqc_crawl(driver, start_date, end_date, oqc_path)
-          Parameters : 
-                 driver: web-drive
-                 start_date : time
-                        The start date to download the file
-                 end_date: time
-                        The end date to download the file
-                 oqc_path : string
-                        The dir of oqc documents
