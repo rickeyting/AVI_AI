@@ -9,7 +9,7 @@ Auto_report_daily: The report includes AI results, FQC, and OQC reports. Merge t
        3. Current merge keys: Date and AVI status. 
        4. Output: Processing record sorted by 'MP', 'SAMPLE', 'GAN' and 'OTHER'. Summary by month.
 
-## Weekly Report Process flows
+## Weekly Report Process flows(main.py)
 * pre_process: create the folders for saving files
 * avi_foqc_crawler.do_crawl: crawling fqc and oqc files
 * raw_data.get_raw_data : copy ai_all.csv file
