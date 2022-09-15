@@ -198,7 +198,12 @@ Change Edge IP:
                      The merge size. Pics will be merge 
                  limit_frame : int
                      The puffer of frame
-       ![image](https://user-images.githubusercontent.com/28131615/190298681-f5e12a0f-6761-4f82-aacd-df292dfee34d.png)
+                     
+                     
+merge_pics       
+![image](https://user-images.githubusercontent.com/28131615/190298681-f5e12a0f-6761-4f82-aacd-df292dfee34d.png)
+The center of images in the box(350-30)*(350-30) will be merged to one.
+
 
        oqc_crawl: crawling on data from the run-card browser.
           oqc_crawl(driver, start_date, end_date, oqc_path)
