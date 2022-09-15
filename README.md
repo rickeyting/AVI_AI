@@ -125,13 +125,13 @@ Process logic:
 
 2.raw_data.py
 
-       connect_test: check whether the link is available or not.
+       connect_test: check whether the link is available or not and copy from Edge.
           connect_test(save_path)
           Parameters : 
                  save_path: string
                         The dir of ai documents
 
-       get_raw_data:copy ai file to ai dir.
+       get_raw_data: rename the current ai file.
           get_raw_data(ai_data_dir)
           Parameters : 
                  ai_data_dir: string
