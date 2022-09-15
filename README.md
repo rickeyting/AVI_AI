@@ -8,7 +8,16 @@ Auto_report_daily: The report includes AI results, FQC, and OQC reports. Merge t
        2. FQC & OQC report. Search and copy from the run card system. Automatic Update by module selenium and Edgedriver.
        3. Current merge keys: Part NUM., Lot NUM, and Date code. 
        4. Output: Daily processing record sorted by resolution, a summary of week & month, merge table, AI raw date.
-       
+
+## Process flows
+* pre_process: create the folders for saving files
+* avi_foqc_crawler.do_crawl: crawling fqc and oqc files
+* raw_data.get_raw_data : copy ai_all.csv file
+* merge_data.separate_concat: merge ai, fqc, and oqc files
+* merge_data.result_plt: plot trend charts
+* Arrange all sheets and export excel.
+
+
 ## FUNCTIONS
 
 1.avi_foqc_crawler.py
@@ -144,10 +153,3 @@ Auto_report_daily: The report includes AI results, FQC, and OQC reports. Merge t
 
        pre_procss():create the folders for saving files
        
-## Process flows
-* pre_process: create the folders for saving files
-* avi_foqc_crawler.do_crawl: crawling fqc and oqc files
-* raw_data.get_raw_data : copy ai_all.csv file
-* merge_data.separate_concat: merge ai, fqc, and oqc files
-* merge_data.result_plt: plot trend charts
-* Arrange all sheets and export excel.
