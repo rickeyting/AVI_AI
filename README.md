@@ -258,7 +258,7 @@ Process logic:
                  undo_date: string
                      The date in undo list(output from check_unprocessed_date function)
        
-       get_lot_info: calculate 'Scan date', 'part number from the path', 'VRS checked date', 'Part_No','lot','lot from the path','strip numbers','CheckTime(min)','point numbers','filter rate','machine code','AI status','scan resolution','scan type','activated ai model', 'Date_Code of first panel','OPID','VRS code' and 'pic number showed on vrs'
+       get_lot_info: Get 'Scan date', 'part number from the path', 'VRS checked date', 'Part_No','lot','lot from the path','strip numbers','CheckTime(min)','point numbers','filter rate','machine code','AI status','scan resolution','scan type','activated ai model', 'Date_Code of first panel','OPID','VRS code' and 'pic number showed on vrs'
           get_lot_info(lot_path,ai_df)
           Parameters : 
                  lot_path: string
