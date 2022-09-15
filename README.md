@@ -139,13 +139,13 @@ Process logic:
 
 3.merge_data.py
 
-       daily_record: sum ai history by day. un-activate
+       daily_record: sum ai history by day. unactivated
           daily_record(ai_path)
           Parameters : 
                  ai_path: string
                         The dir of ai_all.csv
 
-       fqc_data:merge all CSV files in fqc folder. un-activate
+       fqc_data:merge all CSV files in fqc folder. unactivated
           fqc_data(fqc_path)
           Parameters : 
                  fqc_path : string
@@ -163,7 +163,7 @@ Process logic:
                  ai_path: string
                         The dir of ai_all.csv
 
-       all_concat: merge ai, fqc and oqc tables. un-activate
+       all_concat: merge ai, fqc and oqc tables. unactivated
           all_concat(ai_path,fqc_path,oqc_path)
           Parameters : 
                  ai_path: string
@@ -173,7 +173,7 @@ Process logic:
                  oqc_path : string
                         The dir of oqc documents 
 
-       weekly_report: output the result of contact by part_no and lot. un-activate
+       weekly_report: output the result of contact by part_no and lot. unactivated
           weekly_report(anova_df,status = 'MP')
           Parameters : 
                  anova_df: dataframe
