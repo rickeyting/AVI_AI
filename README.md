@@ -225,8 +225,8 @@ Process logic:
 3. Check the internet status(try till link success)
 4. walk-through each panel
 5. check exists VRS.csv or not(AI unfiltered)
-6. Read ai.csv to get VRSmachine code and OPID
-7. Get images number showed on VRS(merge_pics)
+6. Read ai.csv to get VRSmachine code and OPID(column name: VRSmachine, OPID)
+7. Get images number showed on VRS(column name: vrs_pics)
 8. Concat all ai.csv
 9. Sum all vrs.ok created time
 10. Get checked date(VRS)
