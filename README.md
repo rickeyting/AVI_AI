@@ -200,8 +200,10 @@ Change Edge IP:
                      The puffer of frame
                      
                      
-merge_pics       
+# merge_pics       
+
 ![image](https://user-images.githubusercontent.com/28131615/190298681-f5e12a0f-6761-4f82-aacd-df292dfee34d.png)
+
 The center of images in the box(350-30)*(350-30) will be merged to one.
 
 
